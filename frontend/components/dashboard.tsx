@@ -1,16 +1,18 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Contact from "./contact";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { IconBell, IconNotification } from "@tabler/icons-react";
 import ChatRoom from "./chatroom";
 import { useSelector } from "react-redux";
-import { RootState } from "@/app/GlobalRedux/store";
 import axios from "axios";
+import { User } from "@/modules/types";
+import { logout } from "@/modules/common";
+import { UserContext } from "@/modules/authContext";
 
 function Dashboard() {
-  const user = useSelector((state: RootState) => state.user.user);
-  console.log(user);
-  console.log(localStorage.getItem("token"));
+  const { user, token } = useContext(UserContext);
+
+  console.log(token)
   return (
     <>
       <div className="min-w-[calc(768px+1rem)] max-w-[1700px] h-screen 2xl:h-[calc(100vh-1.5rem)] 2xl:mx-4 2xl:my-3 3xl:mx-auto dark:bg-[#111B21] bg-[#F5F6FA] p-2 rounded-xl">
@@ -27,25 +29,13 @@ function Dashboard() {
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p
-                        onClick={() => {
-                          const res = axios.post("http://localhost:4000/user/logout",{}, {
-                            headers: {
-                              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-                              "Content-Type": "application/json",
-                            },
-                          });
-                          console.log(res.catch((err) => console.log(err)));
-                        }}
-                      >
-                        {user?.username}
-                      </p>
+                      <p onClick={()=>logout(token)}>{user?.username}</p>
                       <p className="text-sm text-muted-foreground ">
                         {user?.email}
                       </p>
                     </div>
                   </div>
-                  <div className="flex  items-center">
+                  <div className="flex items-center">
                     <IconBell />
                   </div>
                 </div>

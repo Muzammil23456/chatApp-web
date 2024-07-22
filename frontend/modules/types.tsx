@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface User {
     id: string;
     username: string;
@@ -55,4 +57,6 @@ export interface User {
 
   export interface UserObject {
     user: User | null,
+    loading: boolean,
+    token: string,
   }

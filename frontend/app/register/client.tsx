@@ -94,16 +94,22 @@ function RegisterClient() {
       router.push("/");
       reset();
     } catch (error: any) {
-      setAlertTitle("Error");
-      setAlertDetail(error.response?.data.message);
-      console.log(error)
+      if (error.response) {
+        setAlertTitle("Error");
+        setAlertDetail(error.response?.data.message);
+      }
+      console.log(error);
     } finally {
       setLoading(false);
     }
   };
   return (
     <>
-    <ShowAlert title={alertTitle} handleAlert={setAlertTitle} detail={alertDetail} />
+      <ShowAlert
+        title={alertTitle}
+        handleAlert={setAlertTitle}
+        detail={alertDetail}
+      />
       <div className="flex flex-row min-h-screen justify-center items-center">
         <Card className="shadow-lg sm:p-3">
           <CardHeader>

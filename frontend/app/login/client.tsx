@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useDispatch } from "react-redux";
-import { setToken } from "@/app/GlobalRedux/features/user/tokenSlice";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { IconLoader2 } from "@tabler/icons-react";
@@ -17,10 +16,10 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useUserdata } from "@/modules/authStatus";
+import { UserContext } from "@/modules/authContext";
 
 const formSchema = z.object({
   email: z
@@ -36,7 +35,6 @@ const formSchema = z.object({
 
 function LoginClient() {
   const [loading, setLoading] = useState(false);
-  const dispatcher = useDispatch();
   const router = useRouter();
   const {
     register,
@@ -71,7 +69,10 @@ function LoginClient() {
       reset();
       console.log(res);
       router.push("/");
-      dispatcher(setToken(res.data.token));
+      // set  access-token in local storage
+      localStorage.setItem("aT", res.data.accessToken);
+      // set refresh-token in local storage
+      localStorage.setItem("rT", res.data.refreshToken);
     } catch (error) {
       console.log(error);
     } finally {

@@ -14,13 +14,12 @@ export const verifyJWT = async(req, res, next) => {
         const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
     
         if (!user) {
-            return res.status(403).json({ message: "Invalid Access Token" })
+            return res.status(403).json({ message: "Unauthorized Access" })
         }
     
         req.user = user;
         next()
     } catch (error) {
-        console.log(error.message)
-        return res.status(404).json({ message: "Invalid Access Token" })
+        return res.status(404).json({ message: error.message })
     }
 }

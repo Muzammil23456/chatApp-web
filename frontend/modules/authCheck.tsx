@@ -1,33 +1,10 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import LoginClient from "@/app/login/client";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/GlobalRedux/store";
-import axios from "axios";
+import { UserContext } from "./authContext";
 
 export const AuthCheck = (props: any) => {
-  const token = useSelector((state: RootState) => state.user.token);
-  console.log(token)
-  const user = async () => {
-    if (token) {
-      try {
-        const res = await axios.get("http://localhost:4000/user/currentUser", {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        });
-        console.log(res);
-        return true
-      } catch (error) {
-        console.log(error);
-      } finally {
-      }
-    }
-    else{
-      return false
-    }
-  };
+  const { user, loading } = useContext(UserContext);
+  console.log(user, loading);
 
- user()
-  return <>{ false ? props.children : <LoginClient />}</>;
+  return <>{!loading ? user ? props.children : <LoginClient /> : "loading"}</>;
 };

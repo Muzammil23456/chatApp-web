@@ -1,11 +1,15 @@
 "use client";
 import React from "react";
-import { Providers } from "./GlobalRedux/provider";
+import { useUserdata } from "@/modules/authStatus";
+import { UserContext } from "@/modules/authContext";
 
 function LayoutClient({ children }: { children: React.ReactNode }) {
+  const userData = useUserdata()
   return (
     <>
-      <Providers>{children}</Providers>
+    <UserContext.Provider value={userData}>
+      {children}
+    </UserContext.Provider>
     </>
   );
 }

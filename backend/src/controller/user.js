@@ -1,4 +1,5 @@
 import { User } from "../model/user.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -33,13 +34,20 @@ const registerUser = async (req, res) => {
   const userObject = { username: username, email: email, password: password };
   const user = await User.create(userObject);
 
+  const createdUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  )
+
   // send back a response
-  if (!user) {
+  if (!currentUser) {
     return res.status(500).json({ message: "User not created" });
   }
 
-  return res.status(200).json({ message: "User created" });
-};
+  return res.status(201).json({
+    message: "User created",
+    createdUser,
+  })
+}
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -82,7 +90,7 @@ const loginUser = async (req, res) => {
     .status(200)
     .cookie("refreshToken", refreshToken, options)
     .cookie("accessToken", accessToken, options)
-    .json({ user: loggedInUser ,token: accessToken});
+    .json({ user: loggedInUser, accessToken, refreshToken });
 };
 
 const logoutUser = async (req, res) => {
@@ -110,8 +118,56 @@ const logoutUser = async (req, res) => {
     .json({ message: "Logged out successfully" });
 };
 
+const refreshAccessToken = async (req, res) => {
+  const incomingRefreshToken = req.body?.refreshToken
+
+  console.log(incomingRefreshToken)
+  if (!incomingRefreshToken) {
+    return res.status(401).json({ message: "Unauthorized Access" })
+
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    )
+    console.log(decodedToken)
+    const user = await User.findById(decodedToken?._id)
+
+    if (!user) {
+      console("User not found")
+      return res.status(401).json({ message: "Invalid Refresh Token" })
+
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      console("Invalid refresh token")
+      return res.status(401).json({ message: "Refresh token is expired or used" })
+    }
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+
+    const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        { accessToken, refreshToken: newRefreshToken, message: "Access token refreshed" },
+      )
+  } catch (error) {
+    return res.status(401).json({ message: "Refresh Token Verification Error" })
+  }
+
+}
+
 const currentUser = async (req, res) => {
   return res.status(200).json({ user: req.user });
 }
 
-export { registerUser, loginUser, logoutUser,currentUser };
+export { registerUser, loginUser, logoutUser, refreshAccessToken, currentUser };
