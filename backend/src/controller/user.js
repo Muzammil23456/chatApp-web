@@ -7,6 +7,7 @@ const generateAccessAndRefereshTokens = async (userId) => {
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
+    // update refresh token
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
@@ -38,11 +39,12 @@ const registerUser = async (req, res) => {
     "-password -refreshToken"
   )
 
-  // send back a response
+  // check if user was created
   if (!currentUser) {
     return res.status(500).json({ message: "User not created" });
   }
 
+  // send response
   return res.status(201).json({
     message: "User created",
     createdUser,
@@ -71,7 +73,8 @@ const loginUser = async (req, res) => {
 
   // set the status to online
   user.status = "online";
-  await user.save();
+  await user.save({ validateBeforeSave: false });
+
   // generate access and refresh token
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
     user._id
@@ -86,6 +89,7 @@ const loginUser = async (req, res) => {
     httpOnly: true,
   };
 
+  // set the access and refresh token in the response
   return res
     .status(200)
     .cookie("refreshToken", refreshToken, options)
@@ -97,8 +101,9 @@ const logoutUser = async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $unset: {
-        refreshToken: 1, // this removes the field from document
+      $set: {
+        refreshToken: "", // clear the refresh token;
+        status: "offline", // set the status to offline
       },
     },
     {
@@ -121,10 +126,8 @@ const logoutUser = async (req, res) => {
 const refreshAccessToken = async (req, res) => {
   const incomingRefreshToken = req.body?.refreshToken
 
-  console.log(incomingRefreshToken)
   if (!incomingRefreshToken) {
     return res.status(401).json({ message: "Unauthorized Access" })
-
   }
 
   try {
@@ -132,17 +135,13 @@ const refreshAccessToken = async (req, res) => {
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     )
-    console.log(decodedToken)
     const user = await User.findById(decodedToken?._id)
 
     if (!user) {
-      console("User not found")
       return res.status(401).json({ message: "Invalid Refresh Token" })
-
     }
 
     if (incomingRefreshToken !== user?.refreshToken) {
-      console("Invalid refresh token")
       return res.status(401).json({ message: "Refresh token is expired or used" })
     }
 
@@ -151,16 +150,18 @@ const refreshAccessToken = async (req, res) => {
       secure: true
     }
 
-    const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
 
+    // set accessToken and newRefreshToken in cookie
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("refreshToken", refreshToken, options)
       .json(
-        { accessToken, refreshToken: newRefreshToken, message: "Access token refreshed" },
+        { accessToken, refreshToken, message: "Access token refreshed" },
       )
   } catch (error) {
+    // refresh token verification error
     return res.status(401).json({ message: "Refresh Token Verification Error" })
   }
 

@@ -68,11 +68,12 @@ export function useUserdata() {
                 );
                 const newToken = res.data.accessToken;
                 const newRToken = res.data.refreshToken;
+                console.log(newToken, newRToken)
                 localStorage.setItem("aT", newToken);
-                localStorage.setItem("rt", newRToken)
-                console.log(res)
-                setToken(newToken); // Update state
-                triggerLocalStorageEvent(); // Trigger custom event
+                localStorage.setItem("rT", newRToken)
+                console.log(res);
+                setToken(newToken);
+                setRToken(newRToken);
               } catch (error: any) {
                 console.log(error)
                 // const { message } = error.response.data;
