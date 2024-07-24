@@ -7,15 +7,15 @@ export const logout = async (token: string) => {
       {},
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
     // get token from local storage
-    localStorage.setItem("aT", "")
-    console.log(res)
+    localStorage.setItem("aT", "");
+    console.log(res);
   } catch (error: any) {
-    console.log(error.message)
+    console.log(error);
   }
 };

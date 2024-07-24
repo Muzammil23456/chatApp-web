@@ -20,7 +20,7 @@ export default function ShowAlert(props: {
     if (title != "") {
       const interval = setInterval(() => {
         props.handleAlert("");
-      }, 6000);
+      }, 6000000);
       return () => clearInterval(interval);
     }
   }, [title, props]);

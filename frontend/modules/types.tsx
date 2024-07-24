@@ -58,5 +58,8 @@ export interface User {
   export interface UserObject {
     user: User | null,
     loading: boolean,
-    token: string,
+    aToken: string,
+    rToken: string,
+    setAToken: Dispatch<SetStateAction<string>>,
+    setRToken: Dispatch<SetStateAction<string>>
   }

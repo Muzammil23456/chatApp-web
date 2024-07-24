@@ -18,8 +18,8 @@ import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useUserdata } from "@/modules/authStatus";
-import { UserContext } from "@/modules/authContext";
+import { AccessTokenName, RefreshTokenName } from "@/modules/constants";
+import { Toast } from "@/components/toast";
 
 const formSchema = z.object({
   email: z
@@ -35,6 +35,8 @@ const formSchema = z.object({
 
 function LoginClient() {
   const [loading, setLoading] = useState(false);
+  const [toastTitle, setToastTitle] = useState("");
+  const [toastDetail, setToastDetail] = useState("");
   const router = useRouter();
   const {
     register,
@@ -67,20 +69,28 @@ function LoginClient() {
         }
       );
       reset();
-      console.log(res);
       router.push("/");
-      // set  access-token in local storage
-      localStorage.setItem("aT", res.data.accessToken);
-      // set refresh-token in local storage
-      localStorage.setItem("rT", res.data.refreshToken);
-    } catch (error) {
-      console.log(error);
+      localStorage.setItem(AccessTokenName, res.data.accessToken); // set  accessToken in local storage
+      localStorage.setItem(RefreshTokenName, res.data.refreshToken); // set refreshToken in local storage
+    } catch (error: any) {
+      if (error.response) {
+        setToastTitle("Error");
+        setToastDetail(error.response?.data.message);
+      } else {
+        setToastTitle("Error");
+        setToastDetail(error.message);
+      }
     } finally {
       setLoading(false);
     }
   };
   return (
     <>
+      <Toast
+        title={toastTitle}
+        handleAlert={setToastTitle}
+        detail={toastDetail}
+      />
       <div className="flex flex-row min-h-screen justify-center items-center">
         <Card className="shadow-lg md:w-6/12 xl:w-[30%] ">
           <CardHeader>
@@ -97,7 +107,7 @@ function LoginClient() {
                 <div className="flex w-full  flex-col gap-4">
                   <div>
                     <label
-                      htmlFor="username"
+                      htmlFor="email"
                       className="block text-sm  font-medium leading-6"
                     >
                       Email
@@ -106,8 +116,8 @@ function LoginClient() {
                       <input
                         className="block w-full rounded-md border-0 p-1.5 disabled:opacity-50 text-gray-900 shadow-sm ring-1 ring-inset focus-visible:outline-none  focus:!ring-brand_1 ring-gray-300 placeholder:text-gray-400 "
                         disabled={loading}
-                        id="username"
-                        type="text"
+                        id="email"
+                        type="email"
                         autoComplete="off"
                         {...register("email")}
                       />

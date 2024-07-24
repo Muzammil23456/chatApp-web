@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { User } from "./types";
 import axios from "axios";
 import { logout } from "./common";
+import { AccessTokenName, RefreshTokenName } from "./constants";
 
 // Custom event to trigger localStorage changes
 const triggerLocalStorageEvent = () => {
@@ -12,45 +13,57 @@ const triggerLocalStorageEvent = () => {
 export function useUserdata() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [token, setToken] = useState<string>("");
-  const [rToken, setRToken] = useState<string>("");
+  const [aToken, setAToken] = useState<string>(""); // access token
+  const [rToken, setRToken] = useState<string>(""); // refresh token
 
-  // Handle token changes from localStorage
-  // useEffect(() => {
-  //   const handleStorageChange = () => {
-  //     const newToken = localStorage.getItem("aT") || "";
-  //     const newRToken = localStorage.getItem("rT") || "";
-  //     setToken(newToken);
-  //     setRToken(newRToken);
-  //   };
+  const handleAccessTokenChange = () => {
+    const newToken = localStorage.getItem(AccessTokenName) || "";
+    setAToken(newToken);
+  };
 
-  //   window.addEventListener("localStorage", handleStorageChange);
-
-  //   return () => {
-  //     window.removeEventListener("localStorage", handleStorageChange);
-  //   };
-  // }, []);
-
-  useEffect(() => {
-    const newToken = localStorage.getItem("aT") || "";
-    setToken(newToken);
-  }, []);
-  useEffect(() => {
-    const newRToken = localStorage.getItem("rT") || "";
+  const handleRefreshTokenChange = () => {
+    const newRToken = localStorage.getItem(RefreshTokenName) || "";
     setRToken(newRToken);
+  };
+
+  const setupTokenChangeListeners = () => {
+    window.addEventListener("storage", (event) => {
+      if (event.key === AccessTokenName) {
+        handleAccessTokenChange();
+      } else if (event.key === RefreshTokenName) {
+        handleRefreshTokenChange();
+      }
+    });
+  };
+
+  useEffect(() => {
+    const newToken = localStorage.getItem(AccessTokenName) || "";
+    setAToken(newToken);
+
+    const newRToken = localStorage.getItem(RefreshTokenName) || "";
+    setRToken(newRToken);
+
+    // Setup listeners for localStorage changes
+    setupTokenChangeListeners();
+
+    // Cleanup function to remove listeners on component unmount
+    return () => {
+      window.removeEventListener("storage", handleAccessTokenChange);
+      window.removeEventListener("storage", handleRefreshTokenChange);
+    };
   }, []);
 
   // Fetch user data
   useEffect(() => {
-    const fetchUser = async () => {
-      if (token) {
+    (async () => {
+      if (aToken !== "") {
         setLoading(true);
         try {
           const res = await axios.get(
             "http://localhost:4000/user/currentUser",
             {
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${aToken}`,
                 "Content-Type": "application/json",
               },
             }
@@ -66,16 +79,16 @@ export function useUserdata() {
                   { refreshToken: rToken },
                   { headers: { "Content-Type": "application/json" } }
                 );
-                const newToken = res.data.accessToken;
+                const newAToken = res.data.accessToken;
                 const newRToken = res.data.refreshToken;
-                console.log(newToken, newRToken)
-                localStorage.setItem("aT", newToken);
-                localStorage.setItem("rT", newRToken)
+                console.log(newAToken, newRToken);
+                localStorage.setItem(AccessTokenName, newAToken);
+                localStorage.setItem(RefreshTokenName, newRToken);
                 console.log(res);
-                setToken(newToken);
+                setAToken(newAToken);
                 setRToken(newRToken);
               } catch (error: any) {
-                console.log(error)
+                console.log(error);
                 // const { message } = error.response.data;
                 // if (message === "jwt expired") {
                 //   logout();
@@ -86,16 +99,18 @@ export function useUserdata() {
         } finally {
           setLoading(false);
         }
+      } else {
+        setUser(null);
       }
-    };
-
-    fetchUser();
-  }, [token, rToken]);
+    })();
+  }, [aToken, rToken]);
 
   return {
     user,
     loading,
-    token,
-    setToken,
+    aToken,
+    setAToken,
+    setRToken,
+    rToken,
   };
 }

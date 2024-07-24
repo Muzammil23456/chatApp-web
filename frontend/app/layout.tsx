@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LayoutClient from "./layout.client";
+import { Toaster } from "@/components/ui/toaster"
 
 const font = Poppins({ subsets: ["latin"], weight: ["500"] });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           <TooltipProvider>
             <LayoutClient>{children}</LayoutClient>
+            <Toaster/>
           </TooltipProvider>
         </ThemeProvider>
       </body>

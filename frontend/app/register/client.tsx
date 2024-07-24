@@ -18,7 +18,7 @@ import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import ShowAlert from "@/components/alert";
+import { Toast } from "@/components/toast";
 
 const formSchema = z
   .object({
@@ -55,8 +55,8 @@ const formSchema = z
 function RegisterClient() {
   const [loading, setLoading] = useState(false);
   const [termsAndConditions, setTermsAndConditions] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertDetail, setAlertDetail] = useState("");
+  const [toastTitle, setToastTitle] = useState("");
+  const [toastDetail, setToastDetail] = useState("");
   const router = useRouter();
   const {
     register,
@@ -75,9 +75,8 @@ function RegisterClient() {
 
   const onSubmit = async (data: any) => {
     setLoading(true);
-    console.log(data);
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:4000/user/register",
         {
           username: data.username,
@@ -90,25 +89,26 @@ function RegisterClient() {
           },
         }
       );
-      console.log(response);
-      router.push("/");
       reset();
+      router.push("/");
     } catch (error: any) {
       if (error.response) {
-        setAlertTitle("Error");
-        setAlertDetail(error.response?.data.message);
+        setToastTitle("Error");
+        setToastDetail(error.response?.data.message);
+      } else {
+        setToastTitle("Error");
+        setToastDetail(error.message);
       }
-      console.log(error);
     } finally {
       setLoading(false);
     }
   };
   return (
     <>
-      <ShowAlert
-        title={alertTitle}
-        handleAlert={setAlertTitle}
-        detail={alertDetail}
+      <Toast
+        title={toastTitle}
+        handleAlert={setToastTitle}
+        detail={toastDetail}
       />
       <div className="flex flex-row min-h-screen justify-center items-center">
         <Card className="shadow-lg sm:p-3">
