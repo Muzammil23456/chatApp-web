@@ -18,8 +18,9 @@ import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { AccessTokenName, RefreshTokenName } from "@/modules/constants";
+import { AccessTokenName } from "@/modules/constants";
 import { Toast } from "@/components/toast";
+import { UserContext } from "@/modules/authContext";
 
 const formSchema = z.object({
   email: z
@@ -35,6 +36,7 @@ const formSchema = z.object({
 
 function LoginClient() {
   const [loading, setLoading] = useState(false);
+  const {setAToken} = useContext(UserContext)
   const [toastTitle, setToastTitle] = useState("");
   const [toastDetail, setToastDetail] = useState("");
   const router = useRouter();
@@ -69,9 +71,9 @@ function LoginClient() {
         }
       );
       reset();
-      router.push("/");
+      setAToken(res.data.accessToken);
       localStorage.setItem(AccessTokenName, res.data.accessToken); // set  accessToken in local storage
-      localStorage.setItem(RefreshTokenName, res.data.refreshToken); // set refreshToken in local storage
+      router.replace("/");
     } catch (error: any) {
       if (error.response) {
         setToastTitle("Error");
@@ -88,7 +90,7 @@ function LoginClient() {
     <>
       <Toast
         title={toastTitle}
-        handleAlert={setToastTitle}
+        handleToast={setToastTitle}
         detail={toastDetail}
       />
       <div className="flex flex-row min-h-screen justify-center items-center">

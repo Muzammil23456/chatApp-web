@@ -2,61 +2,22 @@ import { useEffect, useState } from "react";
 import { User } from "./types";
 import axios from "axios";
 import { logout } from "./common";
-import { AccessTokenName, RefreshTokenName } from "./constants";
-
-// Custom event to trigger localStorage changes
-const triggerLocalStorageEvent = () => {
-  const event = new Event("localStorageUpdate");
-  window.dispatchEvent(event);
-};
+import { AccessTokenName } from "./constants";
 
 export function useUserdata() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [aToken, setAToken] = useState<string>(""); // access token
-  const [rToken, setRToken] = useState<string>(""); // refresh token
-
-  const handleAccessTokenChange = () => {
-    const newToken = localStorage.getItem(AccessTokenName) || "";
-    setAToken(newToken);
-  };
-
-  const handleRefreshTokenChange = () => {
-    const newRToken = localStorage.getItem(RefreshTokenName) || "";
-    setRToken(newRToken);
-  };
-
-  const setupTokenChangeListeners = () => {
-    window.addEventListener("storage", (event) => {
-      if (event.key === AccessTokenName) {
-        handleAccessTokenChange();
-      } else if (event.key === RefreshTokenName) {
-        handleRefreshTokenChange();
-      }
-    });
-  };
 
   useEffect(() => {
-    const newToken = localStorage.getItem(AccessTokenName) || "";
-    setAToken(newToken);
-
-    const newRToken = localStorage.getItem(RefreshTokenName) || "";
-    setRToken(newRToken);
-
-    // Setup listeners for localStorage changes
-    setupTokenChangeListeners();
-
-    // Cleanup function to remove listeners on component unmount
-    return () => {
-      window.removeEventListener("storage", handleAccessTokenChange);
-      window.removeEventListener("storage", handleRefreshTokenChange);
-    };
+    const newAToken = localStorage.getItem(AccessTokenName) || "";
+    setAToken(newAToken);
   }, []);
 
   // Fetch user data
   useEffect(() => {
     (async () => {
-      if (aToken !== "") {
+      if (aToken.length > 0) {
         setLoading(true);
         try {
           const res = await axios.get(
@@ -70,32 +31,7 @@ export function useUserdata() {
           );
           setUser(res.data.user);
         } catch (error: any) {
-          if (error.response) {
-            const { message } = error.response.data;
-            if (message === "jwt expired") {
-              try {
-                const res = await axios.post(
-                  "http://localhost:4000/user/refreshToken",
-                  { refreshToken: rToken },
-                  { headers: { "Content-Type": "application/json" } }
-                );
-                const newAToken = res.data.accessToken;
-                const newRToken = res.data.refreshToken;
-                console.log(newAToken, newRToken);
-                localStorage.setItem(AccessTokenName, newAToken);
-                localStorage.setItem(RefreshTokenName, newRToken);
-                console.log(res);
-                setAToken(newAToken);
-                setRToken(newRToken);
-              } catch (error: any) {
-                console.log(error);
-                // const { message } = error.response.data;
-                // if (message === "jwt expired") {
-                //   logout();
-                // }
-              }
-            }
-          }
+          console.log(error);
         } finally {
           setLoading(false);
         }
@@ -103,14 +39,12 @@ export function useUserdata() {
         setUser(null);
       }
     })();
-  }, [aToken, rToken]);
+  }, [aToken]);
 
   return {
     user,
     loading,
     aToken,
     setAToken,
-    setRToken,
-    rToken,
   };
 }

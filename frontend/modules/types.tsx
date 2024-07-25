@@ -59,7 +59,5 @@ export interface User {
     user: User | null,
     loading: boolean,
     aToken: string,
-    rToken: string,
     setAToken: Dispatch<SetStateAction<string>>,
-    setRToken: Dispatch<SetStateAction<string>>
   }

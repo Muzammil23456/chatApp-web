@@ -1,6 +1,10 @@
 import axios from "axios";
+import { AccessTokenName } from "./constants";
 
-export const logout = async (token: string) => {
+export const logout = async (
+  token: string,
+  setAToken: React.Dispatch<React.SetStateAction<string>>
+) => {
   try {
     const res = await axios.post(
       "http://localhost:4000/user/logout",
@@ -13,7 +17,8 @@ export const logout = async (token: string) => {
       }
     );
     // get token from local storage
-    localStorage.setItem("aT", "");
+    localStorage.setItem(AccessTokenName, "");
+    setAToken("");
     console.log(res);
   } catch (error: any) {
     console.log(error);

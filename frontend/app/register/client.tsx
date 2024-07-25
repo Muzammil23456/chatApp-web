@@ -90,7 +90,7 @@ function RegisterClient() {
         }
       );
       reset();
-      router.push("/");
+      router.replace("/");
     } catch (error: any) {
       if (error.response) {
         setToastTitle("Error");
@@ -107,7 +107,7 @@ function RegisterClient() {
     <>
       <Toast
         title={toastTitle}
-        handleAlert={setToastTitle}
+        handleToast={setToastTitle}
         detail={toastDetail}
       />
       <div className="flex flex-row min-h-screen justify-center items-center">

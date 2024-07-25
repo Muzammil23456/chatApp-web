@@ -18,14 +18,14 @@ export const Toast = (props: any) => {
           duration: 6000,
         
           onSwipeMove(event) {
-                props.handleAlert("")
+                props.handleToast("")
           },
           onEscapeKeyDown(event) {
-            props.handleAlert("")
+            props.handleToast("")
           },
         });
       })();
-      const interval = setInterval(() => props.handleAlert(""), 6000);
+      const interval = setInterval(() => props.handleToast(""), 6000);
       return () => clearInterval(interval);
     }
 

@@ -5,13 +5,8 @@ const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
 
-    // update refresh token
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    return { accessToken, refreshToken };
+    return { accessToken };
   } catch (error) {
     return error;
   }
@@ -36,8 +31,8 @@ const registerUser = async (req, res) => {
   const user = await User.create(userObject);
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
-  )
+    "-password "
+  );
 
   // check if user was created
   if (!currentUser) {
@@ -48,8 +43,8 @@ const registerUser = async (req, res) => {
   return res.status(201).json({
     message: "User created",
     createdUser,
-  })
-}
+  });
+};
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -75,13 +70,13 @@ const loginUser = async (req, res) => {
   user.status = "online";
   await user.save({ validateBeforeSave: false });
 
-  // generate access and refresh token
-  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+  // generate access
+  const { accessToken } = await generateAccessAndRefereshTokens(
     user._id
   );
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password "
   );
 
   const options = {
@@ -89,12 +84,11 @@ const loginUser = async (req, res) => {
     httpOnly: true,
   };
 
-  // set the access and refresh token in the response
+  // set the access  in the response
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, options)
     .cookie("accessToken", accessToken, options)
-    .json({ user: loggedInUser, accessToken, refreshToken });
+    .json({ user: loggedInUser, accessToken});
 };
 
 const logoutUser = async (req, res) => {
@@ -102,7 +96,6 @@ const logoutUser = async (req, res) => {
     req.user._id,
     {
       $set: {
-        refreshToken: "", // clear the refresh token;
         status: "offline", // set the status to offline
       },
     },
@@ -119,56 +112,11 @@ const logoutUser = async (req, res) => {
   return res
     .status(200)
     .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
     .json({ message: "Logged out successfully" });
 };
 
-const refreshAccessToken = async (req, res) => {
-  const incomingRefreshToken = req.body?.refreshToken
-
-  if (!incomingRefreshToken) {
-    return res.status(401).json({ message: "Unauthorized Access" })
-  }
-
-  try {
-    const decodedToken = jwt.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    )
-    const user = await User.findById(decodedToken?._id)
-
-    if (!user) {
-      return res.status(401).json({ message: "Invalid Refresh Token" })
-    }
-
-    if (incomingRefreshToken !== user?.refreshToken) {
-      return res.status(401).json({ message: "Refresh token is expired or used" })
-    }
-
-    const options = {
-      httpOnly: true,
-      secure: true
-    }
-
-    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
-
-    // set accessToken and newRefreshToken in cookie
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json(
-        { accessToken, refreshToken, message: "Access token refreshed" },
-      )
-  } catch (error) {
-    // refresh token verification error
-    return res.status(401).json({ message: "Refresh Token Verification Error" })
-  }
-
-}
-
 const currentUser = async (req, res) => {
   return res.status(200).json({ user: req.user });
-}
+};
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, currentUser };
+export { registerUser, loginUser, logoutUser, currentUser };

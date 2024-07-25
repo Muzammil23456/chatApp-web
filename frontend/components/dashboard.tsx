@@ -10,7 +10,7 @@ import { logout } from "@/modules/common";
 import { UserContext } from "@/modules/authContext";
 
 function Dashboard() {
-  const { user, aToken } = useContext(UserContext);
+  const { user, aToken, setAToken } = useContext(UserContext);
 
   return (
     <>
@@ -28,7 +28,7 @@ function Dashboard() {
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p onClick={()=>logout(aToken)}>{user?.username}</p>
+                      <p onClick={()=>logout(aToken, setAToken)}>{user?.username}</p>
                       <p className="text-sm text-muted-foreground ">
                         {user?.email}
                       </p>
