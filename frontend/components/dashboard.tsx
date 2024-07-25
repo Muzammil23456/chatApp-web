@@ -28,7 +28,7 @@ function Dashboard() {
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p onClick={()=>logout(aToken, setAToken)}>{user?.username}</p>
+                      <p onClick={()=>logout(user, setAToken)}>{user?.username}</p>
                       <p className="text-sm text-muted-foreground ">
                         {user?.email}
                       </p>

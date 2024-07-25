@@ -1,17 +1,18 @@
 import axios from "axios";
 import { AccessTokenName } from "./constants";
+import { use } from "react";
+import { User } from "./types";
 
 export const logout = async (
-  token: string,
+  user: User | null,
   setAToken: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
     const res = await axios.post(
       "http://localhost:4000/user/logout",
-      {},
+      {userId: user?._id },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }

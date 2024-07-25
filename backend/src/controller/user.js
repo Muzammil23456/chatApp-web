@@ -92,8 +92,9 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.user._id,
+  console.log()
+  const resp = await User.findByIdAndUpdate(
+    req.body.userId,
     {
       $set: {
         status: "offline", // set the status to offline
@@ -103,7 +104,7 @@ const logoutUser = async (req, res) => {
       new: true,
     }
   );
-
+ console.log(resp);
   const options = {
     httpOnly: true,
     secure: true,

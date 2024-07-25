@@ -8,6 +8,6 @@ router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 
 // protected routes
-router.route("/logout").post(verifyJWT, logoutUser);
+router.route("/logout").post(logoutUser);
 router.route("/currentUser").get(verifyJWT, currentUser);
 export default router;
