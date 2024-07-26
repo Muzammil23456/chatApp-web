@@ -1,13 +1,19 @@
 import React, { useContext, useEffect, useState } from "react";
 import Contact from "./contact";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconBell, IconNotification } from "@tabler/icons-react";
 import ChatRoom from "./chatroom";
-import { useSelector } from "react-redux";
-import axios from "axios";
-import { User } from "@/modules/types";
 import { logout } from "@/modules/common";
 import { UserContext } from "@/modules/authContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { IconDots, IconLogout } from "@tabler/icons-react";
+import { Button } from "./ui/button";
 
 function Dashboard() {
   const { user, aToken, setAToken } = useContext(UserContext);
@@ -28,14 +34,40 @@ function Dashboard() {
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p onClick={()=>logout(user, setAToken)}>{user?.username}</p>
+                      <p>{user?.username}</p>
                       <p className="text-sm text-muted-foreground ">
                         {user?.email}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <IconBell />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="link"
+                          className="rounded-full "
+                          size={"icon"}
+                        >
+                          <IconDots stroke={2} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="p-0">
+                          <Button
+                            variant={"ghost"}
+                            onClick={() => logout(user, setAToken)}
+                            className="  w-full gap-2 justify-start"
+                          >
+                            <IconLogout />
+                            Logout
+                          </Button>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>

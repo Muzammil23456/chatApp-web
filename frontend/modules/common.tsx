@@ -1,6 +1,5 @@
 import axios from "axios";
 import { AccessTokenName } from "./constants";
-import { use } from "react";
 import { User } from "./types";
 
 export const logout = async (

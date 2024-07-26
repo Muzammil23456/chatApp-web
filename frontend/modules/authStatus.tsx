@@ -7,18 +7,14 @@ import { AccessTokenName } from "./constants";
 export function useUserdata() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [aToken, setAToken] = useState<string>(""); // access token
-
-  useEffect(() => {
-    const newAToken = localStorage.getItem(AccessTokenName) || "";
-    setAToken(newAToken);
-  }, []);
+  const [aToken, setAToken] = useState<string>(localStorage.getItem(AccessTokenName) || ""); // access token
 
   // Fetch user data
   useEffect(() => {
     (async () => {
+      console.log(aToken)
       if (aToken.length > 0) {
-        setLoading(true);
+        console.log("test2")
         try {
           const res = await axios.get(
             "http://localhost:4000/user/currentUser",
@@ -30,13 +26,16 @@ export function useUserdata() {
             }
           );
           setUser(res.data.user);
+          setLoading(true);
         } catch (error: any) {
           console.log(error);
         } finally {
-          setLoading(false);
+          setLoading(true);
         }
       } else {
+        console.log("test1")
         setUser(null);
+        setLoading(true)
       }
     })();
   }, [aToken]);

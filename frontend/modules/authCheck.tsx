@@ -8,6 +8,16 @@ export const AuthCheck = (props: any) => {
   console.log(user, loading);
 
   return (
-    <>{!loading ? user ? props.children : <LoginClient /> : <Loading noFullScreen={false}/>}</>
+    <>
+      {loading ? (
+        user ? (
+          props.children
+        ) : (
+          <LoginClient />
+        )
+      ) : (
+        <Loading noFullScreen={false} />
+      )}
+    </>
   );
 };
