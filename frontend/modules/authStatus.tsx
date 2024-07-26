@@ -3,11 +3,11 @@ import { User } from "./types";
 import axios from "axios";
 import { logout } from "./common";
 import { AccessTokenName } from "./constants";
-
+import jwtDecode from 'jwt-decode';
 export function useUserdata() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [aToken, setAToken] = useState<string>(localStorage.getItem(AccessTokenName) || ""); // access token
+  const [aToken, setAToken] = useState<string>(typeof window !== "undefined" && localStorage.getItem(AccessTokenName) || ""); // access token
 
   // Fetch user data
   useEffect(() => {
@@ -40,10 +40,14 @@ export function useUserdata() {
     })();
   }, [aToken]);
 
+  const dt = () => {
+    
+  }
   return {
     user,
     loading,
     aToken,
     setAToken,
+    setUser,
   };
 }

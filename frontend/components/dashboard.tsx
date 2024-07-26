@@ -12,12 +12,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconDots, IconLogout } from "@tabler/icons-react";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { IconDots, IconLogout, IconUserEdit } from "@tabler/icons-react";
 import { Button } from "./ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import axios from "axios";
 
-function Dashboard() {
+const formSchema = z.object({
+  username: z
+    .string()
+    .min(3, { message: " Must be at least 3 characters" })
+    .max(25, { message: "Must be 25 characters or less" }),
+  about: z
+    .string()
+    .min(3, { message: " Must be at least 3 characters" })
+    .max(100, { message: "Must be 100 characters or less" }),
+});
+
+export default function Dashboard() {
   const { user, aToken, setAToken } = useContext(UserContext);
-
+  const [openDropdown, setOpenDropdown] = useState(false);
   return (
     <>
       <div className="min-w-[calc(768px+1rem)] max-w-[1700px] h-screen 2xl:h-[calc(100vh-1.5rem)] 2xl:mx-4 2xl:my-3 3xl:mx-auto dark:bg-[#111B21] bg-[#F5F6FA] p-2 rounded-xl">
@@ -41,7 +64,10 @@ function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <DropdownMenu>
+                    <DropdownMenu
+                      onOpenChange={setOpenDropdown}
+                      open={openDropdown}
+                    >
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="link"
@@ -54,7 +80,12 @@ function Dashboard() {
                       <DropdownMenuContent>
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="p-0"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Profile />
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0">
                           <Button
@@ -87,4 +118,140 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+const Profile = () => {
+  const [openSheet, setOpenSheet] = useState(false);
+  return (
+    <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+      <SheetTrigger asChild>
+        <Button variant={"ghost"} className="  w-full gap-2 justify-start">
+          <IconUserEdit />
+          Profile
+        </Button>
+      </SheetTrigger>
+      <SheetContent side={"left"}>
+        <SheetHeader>
+          <SheetTitle>Profile</SheetTitle>
+          <SheetDescription asChild>
+            <ProfileEditForm />
+          </SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+const ProfileEditForm = () => {
+  const { user, aToken, setUser } = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    setValue,
+  } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      about: "",
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      setValue("username", user.username);
+      setValue("about", user.description);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    try {
+      const res = await axios.patch(
+        `http://localhost:4000/user/update-profile`,
+        { username: data.username, description: data.about },
+        {
+          headers: {
+            Authorization: `Bearer ${aToken}`,
+          },
+        }
+      );
+      console.log(res);
+      setUser(res.data.user);
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
+  return (
+    <>
+      {user && (
+        <div>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex  gap-3 py-2">
+              <div className="flex w-full flex-col gap-4">
+                <div className="flex justify-center">
+                  <Avatar className="size-60">
+                    {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                    <AvatarFallback className="text-8xl">
+                      {user.username.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div>
+                  <label
+                    htmlFor="username"
+                    className="block text-sm  font-medium leading-6"
+                  >
+                    Username
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      className="block w-full rounded-md border-0 p-1.5 disabled:opacity-50 text-gray-900 shadow-sm ring-1 ring-inset focus-visible:outline-none  focus:!ring-brand_1 ring-gray-300 placeholder:text-gray-400 "
+                      disabled={loading}
+                      id="username"
+                      type="text"
+                      autoComplete="off"
+                      {...register("username")}
+                    />
+                    {errors && (
+                      <span className="text-red-500 text-xs">
+                        {errors?.username?.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label
+                    htmlFor="about"
+                    className="block text-sm  font-medium leading-6"
+                  >
+                    About
+                  </label>
+                  <div className="mt-1">
+                    <textarea
+                      className="block resize-none w-full rounded-md border-0 p-1.5  disabled:opacity-50 text-gray-900 shadow-sm ring-1 ring-inset focus-visible:outline-none  focus:!ring-brand_1 ring-gray-300 placeholder:text-gray-400 "
+                      disabled={loading}
+                      id="about"
+                      autoComplete="off"
+                      {...register("about")}
+                    />
+                    {errors && (
+                      <span className="text-red-500 text-xs">
+                        {errors?.about?.message}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <Button className="w-full bg-brand_1  text-white hover:bg-brand_2">
+                  Save
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
+    </>
+  );
+};

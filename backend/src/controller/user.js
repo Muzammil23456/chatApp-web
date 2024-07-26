@@ -30,9 +30,7 @@ const registerUser = async (req, res) => {
   const userObject = { username: username, email: email, password: password };
   const user = await User.create(userObject);
 
-  const createdUser = await User.findById(user._id).select(
-    "-password "
-  );
+  const createdUser = await User.findById(user._id).select("-password ");
 
   // check if user was created
   if (!currentUser) {
@@ -71,13 +69,9 @@ const loginUser = async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   // generate access
-  const { accessToken } = await generateAccessAndRefereshTokens(
-    user._id
-  );
+  const { accessToken } = await generateAccessAndRefereshTokens(user._id);
 
-  const loggedInUser = await User.findById(user._id).select(
-    "-password "
-  );
+  const loggedInUser = await User.findById(user._id).select("-password ");
 
   const options = {
     secure: true,
@@ -88,11 +82,11 @@ const loginUser = async (req, res) => {
   return res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .json({ user: loggedInUser, accessToken});
+    .json({ user: loggedInUser, accessToken });
 };
 
 const logoutUser = async (req, res) => {
-  console.log()
+  console.log();
   const resp = await User.findByIdAndUpdate(
     req.body.userId,
     {
@@ -104,7 +98,7 @@ const logoutUser = async (req, res) => {
       new: true,
     }
   );
- console.log(resp);
+  console.log(resp);
   const options = {
     httpOnly: true,
     secure: true,
@@ -120,4 +114,32 @@ const currentUser = async (req, res) => {
   return res.status(200).json({ user: req.user });
 };
 
-export { registerUser, loginUser, logoutUser, currentUser };
+const updateUser = async (req, res) => {
+  const { username, description } = req.body;
+
+  // check if all fields are filled
+  if ([username, description].some((field) => field?.trim() === "")) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // change username and description
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $set: {
+          username,
+          description,
+        },
+      },
+      {
+        new: true,
+      }
+    ).select("-password ");
+
+    return res.status(200).json({user: updatedUser, message: "User updated successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+export { registerUser, loginUser, logoutUser, currentUser, updateUser };

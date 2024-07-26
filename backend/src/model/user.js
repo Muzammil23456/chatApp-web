@@ -9,7 +9,7 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     picture: { type: String, default: "" },
     status: { type: String, default: "offline" },
-    description: { type: String, default: "" },
+    description: { type: String, default: "Available" },
     chatRoom: [{ type: Schema.Types.ObjectId, ref: "ChatRoom" }],
     lastActive: { type: Date },
   },

@@ -16,14 +16,14 @@ export interface User {
   }
 
   export interface ChatRoom {
-    id: string;
+    _id: string;
     users: string[];
     messages: string[];
     calls: string[];
   }
 
   export interface Content {
-    id: string;
+    _id: string;
     type: string;
     data: string;
     createdAt: Date;
@@ -31,7 +31,7 @@ export interface User {
   }
 
   export interface Call {
-    id: string;
+    _id: string;
     caller: string;
     callType: string;
     callStatus: string;
@@ -43,7 +43,7 @@ export interface User {
   }
 
   export interface Message {
-    id: string;
+    _id: string;
     sender: string;
     content: string;
     chatRoom: string;
@@ -60,4 +60,5 @@ export interface User {
     loading: boolean,
     aToken: string,
     setAToken: Dispatch<SetStateAction<string>>,
+    setUser: Dispatch<SetStateAction<User | null>>,
   }
