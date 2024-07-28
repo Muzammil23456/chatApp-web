@@ -1,126 +1,53 @@
-import React from "react";
+import React, {useContext, useEffect, useState} from 'react'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import Search from "./search";
-
-const contact = [
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-  {
-    name: "Name",
-    message: "Message",
-  },
-];
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+  } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { MessageSquarePlus } from "lucide-react";
+import { User } from '@/modules/types';
+import { users } from '@/modules/common';
+import { UserContext } from '@/modules/authContext';
+import { promise } from 'zod';
 function Contact() {
+    const [openSheet, setOpenSheet] = useState(false);
+    const [contacts,setContacts]=useState<User[]>([])
+const {user,aToken} = useContext(UserContext)
+    useEffect(()=>{
+      try{
+        const result = users(aToken)
+        result
+      } catch(error: any){
+      }
+    },[aToken])
   return (
     <>
-      <Card
-        id="cc"
-        className=" w-full border-none dark:bg-[#202c3330] h-full overflow-hidden rounded-3xl "
-      >
-        <CardHeader>
-          <CardTitle>
-            <Search />
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="h-[87%] pr-2">
-          <ScrollArea type="auto" className=" h-full ">
-            <div className="flex flex-col gap-2">
-              {contact.map((item, index) => (
-                <div key={index} className="flex gap-3 pr-4  justify-between">
-                  <div className="flex gap-3 items-center">
-                    <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col gap-1">
-                      <p>{item.name}</p>
-                      <p className="text-sm text-muted-foreground ">
-                        {item.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">12:00</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+    <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+        <SheetTrigger asChild>
+          <Button
+            variant={"link"}
+            className="text-brand_1 hover:text-brand_2 transition duration-75 !no-underline "
+          >
+            <MessageSquarePlus/>
+            Add Chats
+          </Button>
+        </SheetTrigger>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Are you absolutely sure?</SheetTitle>
+            <SheetDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </SheetDescription>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </>
-  );
+  )
 }
 
-export default Contact;
+export default Contact

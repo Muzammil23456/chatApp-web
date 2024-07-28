@@ -10,11 +10,6 @@ export const logout = async (
     const res = await axios.post(
       "http://localhost:4000/user/logout",
       {userId: user?._id },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
     );
     // get token from local storage
     localStorage.setItem(AccessTokenName, "");
@@ -24,3 +19,16 @@ export const logout = async (
     console.log(error);
   }
 };
+
+export const users = async (aToken: string)=>{
+  try{
+    const res = await axios.get("http://localhost:4000/user/all-users",{
+      headers: {
+        Authorization: `Bearer ${aToken}`,
+      },
+    })
+    return res.data.users
+  }catch (error: any ){
+    console.log(error)
+  }
+}

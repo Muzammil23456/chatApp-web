@@ -17,7 +17,7 @@ export function useUserdata() {
         console.log("test2")
         try {
           const res = await axios.get(
-            "http://localhost:4000/user/currentUser",
+            "http://localhost:4000/user/current-user",
             {
               headers: {
                 Authorization: `Bearer ${aToken}`,

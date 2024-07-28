@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import Contact from "./contact";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatRoom from "./chatroom";
 import { logout } from "@/modules/common";
@@ -12,11 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Chats from "./chats";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { IconDots, IconLogout, IconUserEdit } from "@tabler/icons-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -30,11 +30,15 @@ import axios from "axios";
 const formSchema = z.object({
   username: z
     .string()
-    .min(3, { message: " Must be at least 3 characters" })
-    .max(25, { message: "Must be 25 characters or less" }),
+    .min(3, {
+      message: "Name must be at least 3 characters.",
+    })
+    .max(25, {
+      message: "Name must be at most 25 characters.",
+    }),
   about: z
     .string()
-    .min(3, { message: " Must be at least 3 characters" })
+    .min(3, { message: "Must be at least 3 characters" })
     .max(100, { message: "Must be 100 characters or less" }),
 });
 
@@ -46,7 +50,7 @@ export default function Dashboard() {
       <div className="min-w-[calc(768px+1rem)] max-w-[1700px] h-screen 2xl:h-[calc(100vh-1.5rem)] 2xl:mx-4 2xl:my-3 3xl:mx-auto dark:bg-[#111B21] bg-[#F5F6FA] p-2 rounded-xl">
         <div className="grid grid-cols-12 min-w-[640px] grid-rows-12 gap-3 h-full">
           <div className="col-span-6 row-span-12  md:col-span-5 lg:col-span-4 xl:col-span-3  ">
-            {/* left side (Profile+Contacts)*/}
+            {/* left side (Profile+Chats)*/}
             <div className="flex flex-col h-full gap-2 ">
               <div className=" flex items-center  h-[13%]">
                 {/* profile */}
@@ -64,6 +68,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center">
+                    
                     <DropdownMenu
                       onOpenChange={setOpenDropdown}
                       open={openDropdown}
@@ -103,8 +108,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className=" flex items-center h-[87%]">
-                {/* contact */}
-                <Contact />
+                {/* chats */}
+                <Chats/>
               </div>
             </div>
           </div>
@@ -191,18 +196,18 @@ const ProfileEditForm = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex  gap-3 py-2">
               <div className="flex w-full flex-col gap-4">
-                <div className="flex justify-center">
+                {/* <div className="flex justify-center">
                   <Avatar className="size-60">
-                    {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                    <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback className="text-8xl">
                       {user.username.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                </div>
+                </div> */}
                 <div>
                   <label
                     htmlFor="username"
-                    className="block text-sm  font-medium leading-6"
+                    className="block text-sm font-medium leading-6"
                   >
                     Username
                   </label>

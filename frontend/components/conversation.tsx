@@ -27,16 +27,16 @@ function Conversation() {
   return (
     <>
       <div className="flex flex-col h-full gap-3">
-          <div className=" overflow-y-auto">
-            <div className=" flex flex-col p-2  gap-2 justify-end">
-              {messages.map((message, index) => (
-                <Message
-                  key={index}
-                  msg={message.content}
-                  isOwnMessage={message.sender === "Alice"}
-                />
-              ))}
-            </div>
+        <div className=" overflow-y-auto">
+          <div className=" flex flex-col p-2  gap-2 justify-end">
+            {messages.map((message, index) => (
+              <Message
+                key={index}
+                msg={message.content}
+                isOwnMessage={message.sender === "Alice"}
+              />
+            ))}
+          </div>
         </div>
         <div>
           <label className="relative block">
@@ -85,6 +85,7 @@ function Conversation() {
             </Tooltip>
             <input
               type="text"
+              id="message"
               placeholder="Type a message."
               className="focus-visible:outline-none w-full font-medium rounded-full p-4 pl-12 text-sm dark:bg-[#202c3330] text-muted-foreground   "
             />

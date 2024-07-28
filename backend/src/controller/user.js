@@ -114,6 +114,11 @@ const currentUser = async (req, res) => {
   return res.status(200).json({ user: req.user });
 };
 
+const allUsers = async (req, res) => {
+  const users = await User.find()
+  return res.status(200).json({ users })
+};
+
 const updateUser = async (req, res) => {
   const { username, description } = req.body;
 
@@ -137,9 +142,27 @@ const updateUser = async (req, res) => {
       }
     ).select("-password ");
 
-    return res.status(200).json({user: updatedUser, message: "User updated successfully" });
+    return res.status(200).json({ user: updatedUser, message: "User updated successfully" });
   } catch (error) {
     console.log(error);
   }
 };
-export { registerUser, loginUser, logoutUser, currentUser, updateUser };
+
+const updatePassword = async (req,res)=>{
+
+  const {oldPwd, newPwd}= req.body
+
+  const user = await User.findById(req.user?._id)
+  const isPwdCorrect = await user.isValidPassword(oldPwd)
+
+  if(!isPwdCorrect){
+    return res.status(401).json({message: "Incorrect Old Password."})
+  }
+
+  user.password = newPwd;
+  await user.save({validateBeforeSave: false})
+
+  return res.status(200).json({message: "Password Changed Successfully."})
+};
+
+export { registerUser, loginUser, logoutUser, currentUser, allUsers, updateUser, updatePassword };
