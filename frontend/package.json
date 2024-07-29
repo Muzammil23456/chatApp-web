@@ -25,6 +25,8 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "emoji-mart": "^5.6.0",
+    "emoji-picker-react": "^4.11.1",
     "jwt-decode": "^4.0.0",
     "jwt-decoder": "^0.0.0",
     "lucide": "^0.416.0",

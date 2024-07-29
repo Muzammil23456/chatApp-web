@@ -14,13 +14,10 @@ import { IconPhoneFilled } from "@tabler/icons-react";
 import { IconDots } from "@tabler/icons-react";
 import Conversation from "./conversation";
 import File from "./file";
-import { IconSun } from "@tabler/icons-react";
-import { IconMoonStars } from "@tabler/icons-react";
-import { useTheme } from "next-themes";
+
 function ChatRoom() {
   const [conversation, setConversation] = useState(true);
   const [file, setFile] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   return (
     <>
@@ -48,17 +45,7 @@ function ChatRoom() {
                   >
                     <IconPhoneFilled className="text-brand_1" />
                   </Button>
-                  <Button
-                    size={"icon"}
-                    variant="ghost"
-                    className="rounded-full bg-[#E9EEF7] dark:bg-[#1E293B] hover:!bg-transparent transition ease-in-out delay-150  "
-                    onClick={() =>
-                      setTheme(theme === "light" ? "dark" : "light")
-                    }
-                  >
-                    <IconSun className=" dark:hidden text-brand_1" />
-                    <IconMoonStars className="hidden dark:block text-brand_1" />
-                  </Button>
+                  
                   <Button
                     variant="ghost"
                     className="rounded-full bg-[#E9EEF7] dark:bg-[#1E293B] hover:!bg-transparent transition ease-in-out delay-150  "

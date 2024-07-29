@@ -115,7 +115,7 @@ const currentUser = async (req, res) => {
 };
 
 const allUsers = async (req, res) => {
-  const users = await User.find()
+  const users = await User.find().select("-password ");
   return res.status(200).json({ users })
 };
 

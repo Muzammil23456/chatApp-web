@@ -37,10 +37,10 @@ const formSchema = z
       })
       .email(),
     password: z.string().min(6, {
-      message: "Password me be 6 characters minimum",
+      message: "Password must be 6 characters long",
     }),
     confirmPassword: z.string().min(6, {
-      message: "Password me be 6 characters minimum",
+      message: "Password must be 6 characters long",
     }),
   })
   .superRefine(({ confirmPassword, password }, ctx) => {

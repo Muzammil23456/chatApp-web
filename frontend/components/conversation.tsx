@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import EmojiPicker from 'emoji-picker-react';
 
 const messages = [
   { sender: "Alice", content: "Hello, how are you?" },
@@ -83,6 +84,7 @@ function Conversation() {
                 <p>Emoji</p>
               </TooltipContent>
             </Tooltip>
+            {/* <EmojiPicker/> */}
             <input
               type="text"
               id="message"

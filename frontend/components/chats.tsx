@@ -10,6 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Search from "./search";
+import Contact from "./contact";
 
 
 function Chats() {
@@ -52,8 +53,9 @@ function Chats() {
         {chats.length === 0 && (
           <CardFooter className="justify-center">
             <p className="text-center text-sm text-muted-foreground">
-              No Chats Found
+              No Chats Found!
             </p>
+            <Contact btnWithIcon={false} />
           </CardFooter>
         )}
       </Card>

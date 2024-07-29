@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { Dispatch, useContext, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatRoom from "./chatroom";
 import { logout } from "@/modules/common";
@@ -11,11 +11,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import Chats from "./chats";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { IconDots, IconLogout, IconUserEdit } from "@tabler/icons-react";
+import {
+  IconDots,
+  IconLoader2,
+  IconLogout,
+  IconPassword,
+  IconUserEdit,
+} from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -26,27 +40,26 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import axios from "axios";
-
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(3, {
-      message: "Name must be at least 3 characters.",
-    })
-    .max(25, {
-      message: "Name must be at most 25 characters.",
-    }),
-  about: z
-    .string()
-    .min(3, { message: "Must be at least 3 characters" })
-    .max(100, { message: "Must be 100 characters or less" }),
-});
+import Contact from "./contact";
+import { IconSun } from "@tabler/icons-react";
+import { IconMoonStars } from "@tabler/icons-react";
+import { useTheme } from "next-themes";
+import { Toast } from "./toast";
 
 export default function Dashboard() {
   const { user, aToken, setAToken } = useContext(UserContext);
   const [openDropdown, setOpenDropdown] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [toastTitle, setToastTitle] = useState("");
+  const [toastDetail, setToastDetail] = useState("");
+
   return (
     <>
+      <Toast
+        title={toastTitle}
+        detail={toastDetail}
+        handleToast={setToastTitle}
+      />
       <div className="min-w-[calc(768px+1rem)] max-w-[1700px] h-screen 2xl:h-[calc(100vh-1.5rem)] 2xl:mx-4 2xl:my-3 3xl:mx-auto dark:bg-[#111B21] bg-[#F5F6FA] p-2 rounded-xl">
         <div className="grid grid-cols-12 min-w-[640px] grid-rows-12 gap-3 h-full">
           <div className="col-span-6 row-span-12  md:col-span-5 lg:col-span-4 xl:col-span-3  ">
@@ -67,8 +80,19 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center">
-                    
+                  <div className="flex items-center ">
+                    <Button
+                      size={"icon"}
+                      variant="link"
+                      className="rounded-full"
+                      onClick={() =>
+                        setTheme(theme === "light" ? "dark" : "light")
+                      }
+                    >
+                      <IconSun className=" dark:hidden " />
+                      <IconMoonStars className="hidden dark:block " />
+                    </Button>
+                    <Contact btnWithIcon={true} />
                     <DropdownMenu
                       onOpenChange={setOpenDropdown}
                       open={openDropdown}
@@ -83,7 +107,7 @@ export default function Dashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuLabel>Manage</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="p-0"
@@ -91,15 +115,21 @@ export default function Dashboard() {
                         >
                           <Profile />
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="p-0"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <UpdatePassword />
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0">
                           <Button
                             variant={"ghost"}
                             onClick={() => logout(user, setAToken)}
-                            className="  w-full gap-2 justify-start"
+                            className="  w-full gap-2  justify-start"
                           >
                             <IconLogout />
-                            Logout
+                            <span>Log Out</span>
                           </Button>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -109,7 +139,7 @@ export default function Dashboard() {
               </div>
               <div className=" flex items-center h-[87%]">
                 {/* chats */}
-                <Chats/>
+                <Chats />
               </div>
             </div>
           </div>
@@ -123,6 +153,135 @@ export default function Dashboard() {
   );
 }
 
+const UpdatePassword = () => {
+  const formSchema = z.object({
+    oldPassword: z.string().min(6, {
+      message: "Password must be 6 characters long",
+    }),
+    newPassword: z.string().min(6, {
+      message: "Password must be 6 characters long",
+    }),
+  });
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user, aToken } = useContext(UserContext);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      oldPassword: "",
+      newPassword: "",
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/user/change-password",
+        { oldPwd: data.oldPassword, newPwd: data.newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${aToken}`,
+          },
+        }
+      );
+      console.log(res);
+      reset();
+      setOpenDialog(false);
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogTrigger asChild>
+          <Button variant={"ghost"} className="  w-full gap-2 justify-start">
+            <IconPassword />
+            Password
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader className="gap-5">
+            <DialogTitle>Update Password</DialogTitle>
+            <DialogDescription asChild>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex  gap-3 py-2">
+                  <div className="flex w-full  flex-col gap-4">
+                    <div>
+                      <label
+                        htmlFor="oldPwd"
+                        className="block text-sm  font-medium leading-6"
+                      >
+                        Old Password
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          className="block w-full rounded-md border-0 p-1.5 disabled:opacity-50 text-gray-900 shadow-sm ring-1 ring-inset focus-visible:outline-none  focus:!ring-brand_1 ring-gray-300 placeholder:text-gray-400 "
+                          disabled={loading}
+                          id="oldPwd"
+                          type="text"
+                          autoComplete="off"
+                          {...register("oldPassword")}
+                        />
+                        {errors && (
+                          <span className="text-red-500 text-xs">
+                            {errors?.oldPassword?.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="newPwd"
+                        className="block text-sm  font-medium leading-6"
+                      >
+                        New Password
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          className="block w-full rounded-md border-0 p-1.5  disabled:opacity-50 text-gray-900 shadow-sm ring-1 ring-inset focus-visible:outline-none  focus:!ring-brand_1 ring-gray-300 placeholder:text-gray-400 "
+                          disabled={loading}
+                          type="password"
+                          id="newPwd"
+                          autoComplete="off"
+                          {...register("newPassword")}
+                        />
+                        {errors && (
+                          <span className="text-red-500 text-xs">
+                            {errors?.newPassword?.message}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      className="w-full  bg-brand_1 disable:opacity-50 hover:bg-brand_2 transition ease-in-out delay-150"
+                      type="submit"
+                    >
+                      {loading ? (
+                        <IconLoader2 className="animate-spin" />
+                      ) : (
+                        "Update"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
 const Profile = () => {
   const [openSheet, setOpenSheet] = useState(false);
   return (
@@ -137,7 +296,7 @@ const Profile = () => {
         <SheetHeader>
           <SheetTitle>Profile</SheetTitle>
           <SheetDescription asChild>
-            <ProfileEditForm />
+            <ProfileEditForm onOpenChange={setOpenSheet} />
           </SheetDescription>
         </SheetHeader>
       </SheetContent>
@@ -145,7 +304,22 @@ const Profile = () => {
   );
 };
 
-const ProfileEditForm = () => {
+const ProfileEditForm = ({
+  onOpenChange,
+}: {
+  onOpenChange: Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const formSchema = z.object({
+    username: z
+      .string()
+      .min(3, { message: "Username must be at least 3 characters" })
+      .max(20, { message: "Username must be at most 20 characters" }),
+    about: z
+      .string()
+      .min(3, { message: "About must be at least 3 characters" })
+      .max(100, { message: "About must be at most 100 characters" }),
+  });
+
   const { user, aToken, setUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const {
@@ -167,8 +341,7 @@ const ProfileEditForm = () => {
       setValue("username", user.username);
       setValue("about", user.description);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [setValue, user]);
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -184,10 +357,12 @@ const ProfileEditForm = () => {
       );
       console.log(res);
       setUser(res.data.user);
+      onOpenChange(false);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
   return (
     <>
@@ -196,14 +371,6 @@ const ProfileEditForm = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex  gap-3 py-2">
               <div className="flex w-full flex-col gap-4">
-                {/* <div className="flex justify-center">
-                  <Avatar className="size-60">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback className="text-8xl">
-                      {user.username.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </div> */}
                 <div>
                   <label
                     htmlFor="username"
@@ -218,6 +385,9 @@ const ProfileEditForm = () => {
                       id="username"
                       type="text"
                       autoComplete="off"
+                      // onKeyDown={(e) => {
+                      //   e.code === 'Space' ? e.stopPropagation() : null;
+                      // }}
                       {...register("username")}
                     />
                     {errors && (
