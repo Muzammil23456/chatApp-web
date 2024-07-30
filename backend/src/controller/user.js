@@ -1,5 +1,6 @@
 import { User } from "../model/user.js";
 import jwt from "jsonwebtoken";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -86,7 +87,6 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  console.log();
   const resp = await User.findByIdAndUpdate(
     req.body.userId,
     {
@@ -98,7 +98,6 @@ const logoutUser = async (req, res) => {
       new: true,
     }
   );
-  console.log(resp);
   const options = {
     httpOnly: true,
     secure: true,
@@ -116,7 +115,7 @@ const currentUser = async (req, res) => {
 
 const allUsers = async (req, res) => {
   const users = await User.find().select("-password ");
-  return res.status(200).json({ users })
+  return res.status(200).json({ users });
 };
 
 const updateUser = async (req, res) => {
@@ -142,27 +141,68 @@ const updateUser = async (req, res) => {
       }
     ).select("-password ");
 
-    return res.status(200).json({ user: updatedUser, message: "User updated successfully" });
+    return res
+      .status(200)
+      .json({ user: updatedUser, message: "User updated successfully" });
   } catch (error) {
     console.log(error);
   }
 };
 
-const updatePassword = async (req,res)=>{
+const updatePassword = async (req, res) => {
+  const { oldPwd, newPwd } = req.body;
 
-  const {oldPwd, newPwd}= req.body
+  const user = await User.findById(req.user?._id);
+  const isPwdCorrect = await user.isValidPassword(oldPwd);
 
-  const user = await User.findById(req.user?._id)
-  const isPwdCorrect = await user.isValidPassword(oldPwd)
-
-  if(!isPwdCorrect){
-    return res.status(401).json({message: "Incorrect Old Password."})
+  if (!isPwdCorrect) {
+    return res.status(401).json({ message: "Incorrect Old Password." });
   }
 
   user.password = newPwd;
-  await user.save({validateBeforeSave: false})
+  await user.save({ validateBeforeSave: false });
 
-  return res.status(200).json({message: "Password Changed Successfully."})
+  return res.status(200).json({ message: "Password Changed Successfully." });
 };
 
-export { registerUser, loginUser, logoutUser, currentUser, allUsers, updateUser, updatePassword };
+const updateUserPicture = async (req, res) => {
+  const PictureLocalPath = req.file?.path;
+
+  if (!PictureLocalPath) {
+    return res.status(400).json({ message: "Picture file is missing" });
+  }
+
+  //TODO: delete old image - assignment
+
+  const picture = await uploadOnCloudinary(PictureLocalPath);
+
+  console.log(picture)
+  if (!picture.url) {
+   return res.status(400).json({message:"Error while uploading a picture"})
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        picture: picture.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json({ user: user, message: "User picture updated successfully" });
+};
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  currentUser,
+  allUsers,
+  updateUser,
+  updatePassword,
+  updateUserPicture,
+};

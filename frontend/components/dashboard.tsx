@@ -1,4 +1,11 @@
-import React, { Dispatch, useContext, useEffect, useState } from "react";
+/* eslint-disable @next/next/no-img-element */
+import React, {
+  ChangeEvent,
+  Dispatch,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatRoom from "./chatroom";
 import { logout } from "@/modules/common";
@@ -70,7 +77,7 @@ export default function Dashboard() {
                 <div className="flex gap-3 w-full justify-between">
                   <div className="flex gap-3 items-center">
                     <Avatar>
-                      {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                      <AvatarImage src={user?.picture} />
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
@@ -81,6 +88,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center ">
+                    {/* dark mode icon */}
                     <Button
                       size={"icon"}
                       variant="link"
@@ -120,6 +128,12 @@ export default function Dashboard() {
                           onSelect={(e) => e.preventDefault()}
                         >
                           <UpdatePassword />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="p-0"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <ProfilePicture />
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0">
@@ -428,5 +442,42 @@ const ProfileEditForm = ({
         </div>
       )}
     </>
+  );
+};
+
+
+const ProfilePicture = () => {
+  const [image, setImage] = useState<File | null>(null);
+  const { aToken } = useContext(UserContext);
+
+  const upload = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file); // 'avatar' should match the field name expected by Multer
+
+      const res = await axios.patch(
+        "http://localhost:4000/user/update-profile-picture",
+        formData,
+        { headers: { Authorization: `Bearer ${aToken}` } } // Multer handles 'Content-Type' automatically
+      );
+      console.log(res.data); // Log the response data
+    } catch (error: any) {
+      console.error('Upload error:', error.response?.data || error.message);
+    }
+  };
+
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setImage(file);
+      upload(file);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" name="avatar" accept="image/*" onChange={handleImageChange} />
+      {image && <p>File selected: {image.name}</p>}
+    </div>
   );
 };
