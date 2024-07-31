@@ -55,13 +55,15 @@ import { Toast } from "./toast";
 
 export default function Dashboard() {
   const { user, aToken, setAToken } = useContext(UserContext);
-  const [openDropdown, setOpenDropdown] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<boolean>(false);
   const { theme, setTheme } = useTheme();
-  const [toastTitle, setToastTitle] = useState("");
-  const [toastDetail, setToastDetail] = useState("");
+  const [toastTitle, setToastTitle] = useState<string>("");
+  const [toastDetail, setToastDetail] = useState<string>("");
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   return (
     <>
+      <ProfilePicture open={openDialog} onOpenChange={setOpenDialog} />
       <Toast
         title={toastTitle}
         detail={toastDetail}
@@ -76,7 +78,7 @@ export default function Dashboard() {
                 {/* profile */}
                 <div className="flex gap-3 w-full justify-between">
                   <div className="flex gap-3 items-center">
-                    <Avatar>
+                    <Avatar className="cursor-pointer" onClick={() => setOpenDialog(true)}>
                       <AvatarImage src={user?.picture} />
                       <AvatarFallback>{user?.username[0]}</AvatarFallback>
                     </Avatar>
@@ -129,12 +131,12 @@ export default function Dashboard() {
                         >
                           <UpdatePassword />
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           className="p-0"
                           onSelect={(e) => e.preventDefault()}
                         >
                           <ProfilePicture />
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0">
                           <Button
@@ -445,15 +447,20 @@ const ProfileEditForm = ({
   );
 };
 
-
-const ProfilePicture = () => {
+const ProfilePicture = ({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [image, setImage] = useState<File | null>(null);
-  const { aToken } = useContext(UserContext);
+  const {user, aToken } = useContext(UserContext);
 
   const upload = async (file: File) => {
     try {
       const formData = new FormData();
-      formData.append('avatar', file); // 'avatar' should match the field name expected by Multer
+      formData.append("avatar", file); // 'avatar' should match the field name expected by Multer
 
       const res = await axios.patch(
         "http://localhost:4000/user/update-profile-picture",
@@ -462,7 +469,7 @@ const ProfilePicture = () => {
       );
       console.log(res.data); // Log the response data
     } catch (error: any) {
-      console.error('Upload error:', error.response?.data || error.message);
+      console.error("Upload error:", error.response?.data || error.message);
     }
   };
 
@@ -475,9 +482,21 @@ const ProfilePicture = () => {
   };
 
   return (
-    <div>
-      <input type="file" name="avatar" accept="image/*" onChange={handleImageChange} />
-      {image && <p>File selected: {image.name}</p>}
-    </div>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-auto">
+          <DialogHeader className="gap-5">
+            <DialogDescription asChild>
+              <div className="flex justify-center">
+                <Avatar className="size-60">
+                  <AvatarImage src={user?.picture} />
+                  <AvatarFallback>{user?.username.slice(0,2)}</AvatarFallback>
+                </Avatar>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
