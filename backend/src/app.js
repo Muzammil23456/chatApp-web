@@ -9,8 +9,10 @@ app.use(express.json());
 
 // routes import
 import userRouter from "./route/user.js";
+import chatRoomRouter from "./route/chatRoom.js";
 
 //routes declaration
 app.use("/user", userRouter);
+app.use("/chatRoom", chatRoomRouter);
 
 export {app}

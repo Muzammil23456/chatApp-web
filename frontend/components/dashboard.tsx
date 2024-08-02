@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ChatRoom from "./chatroom";
 import { logout } from "@/modules/common";
 import { UserContext } from "@/modules/authContext";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   IconDots,
+  IconCameraFilled,
   IconLoader2,
   IconLogout,
   IconPassword,
@@ -78,9 +80,14 @@ export default function Dashboard() {
                 {/* profile */}
                 <div className="flex gap-3 w-full justify-between">
                   <div className="flex gap-3 items-center">
-                    <Avatar className="cursor-pointer" onClick={() => setOpenDialog(true)}>
+                    <Avatar
+                      className="cursor-pointer"
+                      onClick={() => setOpenDialog(true)}
+                    >
                       <AvatarImage src={user?.picture} />
-                      <AvatarFallback>{user?.username[0]}</AvatarFallback>
+                      <AvatarFallback>
+                        {user?.username.slice(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
                       <p>{user?.username}</p>
@@ -135,7 +142,7 @@ export default function Dashboard() {
                           className="p-0"
                           onSelect={(e) => e.preventDefault()}
                         >
-                          <ProfilePicture />
+                          <InputForm />
                         </DropdownMenuItem> */}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="p-0">
@@ -312,7 +319,9 @@ const Profile = () => {
         <SheetHeader>
           <SheetTitle>Profile</SheetTitle>
           <SheetDescription asChild>
-            <ProfileEditForm onOpenChange={setOpenSheet} />
+            <div>
+              <ProfileEditForm onOpenChange={setOpenSheet} />
+            </div>
           </SheetDescription>
         </SheetHeader>
       </SheetContent>
@@ -455,7 +464,7 @@ const ProfilePicture = ({
   onOpenChange: Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [image, setImage] = useState<File | null>(null);
-  const {user, aToken } = useContext(UserContext);
+  const { user, setUser, aToken } = useContext(UserContext);
 
   const upload = async (file: File) => {
     try {
@@ -468,6 +477,8 @@ const ProfilePicture = ({
         { headers: { Authorization: `Bearer ${aToken}` } } // Multer handles 'Content-Type' automatically
       );
       console.log(res.data); // Log the response data
+      setUser(res.data.user);
+      onOpenChange(false);
     } catch (error: any) {
       console.error("Upload error:", error.response?.data || error.message);
     }
@@ -486,11 +497,32 @@ const ProfilePicture = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="w-auto">
           <DialogHeader className="gap-5">
+            <DialogTitle className="hidden">Update Profile Picture</DialogTitle>
             <DialogDescription asChild>
-              <div className="flex justify-center">
+              <div className="avatar-edit flex justify-center">
                 <Avatar className="size-60">
                   <AvatarImage src={user?.picture} />
-                  <AvatarFallback>{user?.username.slice(0,2)}</AvatarFallback>
+                  <AvatarFallback className="text-8xl text-black">
+                    {user?.username.slice(0, 2)}
+                  </AvatarFallback>
+                  <div
+                    className="size-full edit hidden cursor-pointer absolute top-0 left-0 bg-slate-400/65  "
+                    onClick={() => document.getElementById("avatar")?.click()}
+                  >
+                    <div className="flex flex-col justify-center items-center size-full text-white gap-2">
+                      <IconCameraFilled size={32} />
+                      <div className="text-center">
+                        <p>Change</p>
+                        <p>Profile Picture</p>
+                      </div>
+                      <input
+                        id="avatar"
+                        type="file"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </div>
+                  </div>
                 </Avatar>
               </div>
             </DialogDescription>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,10 +11,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Search from "./search";
 import Contact from "./contact";
-
+import axios from "axios";
+import { ChatRoom } from "@/modules/types";
 
 function Chats() {
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<ChatRoom[]>();
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:4000/chatRoom//get-chat-rooms"
+        );
+        console.log(res.data);
+        setChats(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
   return (
     <>
       <Card
@@ -30,7 +44,7 @@ function Chats() {
           {/*h-[87%]*/}
           <ScrollArea type="auto" className=" h-full ">
             <div className="flex flex-col gap-2">
-              {/* {chats.map((item, index) => (
+              {/* {chats?.map((item, index) => (
                 <div key={index} className="flex gap-3 pr-4  justify-between">
                   <div className="flex gap-3 items-center">
                     <Avatar>
@@ -38,7 +52,7 @@ function Chats() {
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p>{item}</p>
+                      <p>{item.}</p>
                       <p className="text-sm text-muted-foreground ">{item}</p>
                     </div>
                   </div>
@@ -50,7 +64,7 @@ function Chats() {
             </div>
           </ScrollArea>
         </CardContent>
-        {chats.length === 0 && (
+        {chats?.length === 0 && (
           <CardFooter className="justify-center">
             <p className="text-center text-sm text-muted-foreground">
               No Chats Found!

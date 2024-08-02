@@ -14,6 +14,7 @@ import { User } from "@/modules/types";
 import { users } from "@/modules/common";
 import { UserContext } from "@/modules/authContext";
 import { promise } from "zod";
+import axios from "axios";
 function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
   const [openSheet, setOpenSheet] = useState(false);
   const [contacts, setContacts] = useState<User[]>([]);
@@ -34,12 +35,30 @@ function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aToken]);
+
+  const startConsversation = async (contactId: string) => {
+    console.log("start conversation");
+    const senderId = user?._id;
+    const receiverId = contactId;
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/chatRoom/start-conversation",
+        {
+          senderId,
+          receiverId,
+        }
+      );
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <>
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetTrigger asChild>
           <Button
-            size={btnWithIcon?"icon":"default"}
+            size={btnWithIcon ? "icon" : "default"}
             variant={"link"}
             className={`${
               btnWithIcon
@@ -56,7 +75,13 @@ function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
             <SheetDescription asChild>
               <div className="flex flex-col gap-3  ">
                 {contacts?.map((item, index) => (
-                  <div key={index} className="flex gap-3 pr-4  justify-between">
+                  <div
+                    key={index}
+                    className="flex gap-3 pr-4  justify-between"
+                    onClick={() => {
+                      startConsversation(item._id);
+                    }}
+                  >
                     <div className="flex gap-3 items-center">
                       <Avatar>
                         <AvatarImage src="https://github.com/shadcn.png" />

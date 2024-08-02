@@ -33,6 +33,9 @@
     background-color: #E2E8F0;
   }
   
+  .avatar-edit:hover  .edit {
+    display: block;
+  }
 
   
   @layer base {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IconSend2 } from "@tabler/icons-react";
 import { Button } from "./ui/button";
 import { IconPaperclip } from "@tabler/icons-react";
@@ -25,11 +25,17 @@ const messages = [
 ];
 
 function Conversation() {
+  useEffect(() => {
+    const element = document.getElementById("messages");
+    if (element) {
+      element.scrollTop = element.scrollHeight;
+    }
+  })
   return (
     <>
       <div className="flex flex-col h-full gap-3">
-        <div className=" overflow-y-auto">
-          <div className=" flex flex-col p-2  gap-2 justify-end">
+        <div id="messages"  className=" overflow-y-auto h-full">
+          <div className=" flex flex-col p-2  gap-2 justify-end h-full ">
             {messages.map((message, index) => (
               <Message
                 key={index}
