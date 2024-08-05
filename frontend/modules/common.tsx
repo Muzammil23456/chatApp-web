@@ -7,10 +7,9 @@ export const logout = async (
   setAToken: React.Dispatch<React.SetStateAction<string>>
 ) => {
   try {
-    const res = await axios.post(
-      "http://localhost:4000/user/logout",
-      {userId: user?._id },
-    );
+    const res = await axios.post("http://localhost:4000/user/logout", {
+      userId: user?._id,
+    });
     // get token from local storage
     localStorage.setItem(AccessTokenName, "");
     setAToken("");
@@ -20,15 +19,32 @@ export const logout = async (
   }
 };
 
-export const users = async (aToken: string)=>{
-  try{
-    const res = await axios.get("http://localhost:4000/user/all-users",{
+export const users = async (aToken: string) => {
+  try {
+    const res = await axios.get("http://localhost:4000/user/all-users", {
       headers: {
         Authorization: `Bearer ${aToken}`,
       },
-    })
-    return res.data.users
-  }catch (error: any ){
-    console.log(error)
+    });
+    return res.data.users;
+  } catch (error: any) {
+    console.log(error);
   }
-}
+};
+
+export const userWithId = async (aToken: string, id: string) => {
+  try {
+    const res = await axios.post(
+      "http://localhost:4000/user/user-with-id",
+      {
+        userId: id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${aToken}`,
+        },
+      }
+    );
+    return res.data.user
+  } catch (error: any) {}
+};

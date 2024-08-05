@@ -12,18 +12,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Search from "./search";
 import Contact from "./contact";
 import axios from "axios";
-import { ChatRoom } from "@/modules/types";
+import { ChatRoom, User } from "@/modules/types";
 
 function Chats() {
-  const [chats, setChats] = useState<ChatRoom[]>();
+  const [chatRoom, setChatRoom] = useState<ChatRoom[]>();
+  const [chats, setChats] = useState<User[]>();
   useEffect(() => {
     (async () => {
       try {
         const res = await axios.get(
-          "http://localhost:4000/chatRoom//get-chat-rooms"
+          "http://localhost:4000/chatRoom/get-chat-rooms"
         );
-        console.log(res.data);
-        setChats(res.data);
+        const { chatRooms }:{chatRooms:ChatRoom[] } = res.data;
+        console.log(chatRooms);
+        setChatRoom(chatRooms);
+        const chat = chatRooms.filter((e)=>e.users)
+        console.log(chat)
       } catch (error) {
         console.log(error);
       }

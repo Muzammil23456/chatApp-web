@@ -3,7 +3,6 @@ import { User } from "./types";
 import axios from "axios";
 import { logout } from "./common";
 import { AccessTokenName } from "./constants";
-import jwtDecode from 'jwt-decode';
 export function useUserdata() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);

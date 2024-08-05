@@ -118,6 +118,19 @@ const allUsers = async (req, res) => {
   return res.status(200).json({ users });
 };
 
+const userWithId = async (req, res) => {
+
+  const { userId } = req.body;
+
+  const user = await User.findById(userId).select("-password")
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  return res.status(200).json({ user, message: "User found." })
+}
+
 const updateUser = async (req, res) => {
   const { username, description } = req.body;
 
@@ -178,7 +191,7 @@ const updateUserPicture = async (req, res) => {
 
   console.log(picture)
   if (!picture.url) {
-   return res.status(400).json({message:"Error while uploading a picture"})
+    return res.status(400).json({ message: "Error while uploading a picture" })
   }
 
   const user = await User.findByIdAndUpdate(
@@ -202,6 +215,7 @@ export {
   logoutUser,
   currentUser,
   allUsers,
+  userWithId,
   updateUser,
   updatePassword,
   updateUserPicture,
