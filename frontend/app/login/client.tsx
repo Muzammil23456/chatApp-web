@@ -55,8 +55,6 @@ function LoginClient() {
 
   const onSubmit = async (data: any) => {
     setLoading(true);
-    console.log(data);
-
     try {
       const res = await axios.post(
         "http://localhost:4000/user/login",

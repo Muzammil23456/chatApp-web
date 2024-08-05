@@ -24,11 +24,6 @@ function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
     (async () => {
       try {
         const result: User[] = await users(aToken);
-        console.log(result);
-        console.log(
-          "a",
-          result.filter((contact) => contact._id !== user?._id)
-        );
         setContacts(result.filter((contact) => contact._id !== user?._id));
       } catch (error: any) {}
     })();
@@ -37,7 +32,6 @@ function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
   }, [aToken]);
 
   const startConsversation = async (contactId: string) => {
-    console.log("start conversation");
     const senderId = user?._id;
     const receiverId = contactId;
     try {
@@ -48,9 +42,8 @@ function Contact({ btnWithIcon }: { btnWithIcon: boolean }) {
           receiverId,
         }
       );
-      console.log(res);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return (

@@ -11,9 +11,7 @@ export function useUserdata() {
   // Fetch user data
   useEffect(() => {
     (async () => {
-      console.log(aToken)
       if (aToken.length > 0) {
-        console.log("test2")
         try {
           const res = await axios.get(
             "http://localhost:4000/user/current-user",
@@ -27,12 +25,11 @@ export function useUserdata() {
           setUser(res.data.user);
           setLoading(true);
         } catch (error: any) {
-          console.log(error);
+          console.error(error);
         } finally {
           setLoading(true);
         }
       } else {
-        console.log("test1")
         setUser(null);
         setLoading(true)
       }

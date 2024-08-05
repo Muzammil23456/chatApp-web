@@ -13,9 +13,8 @@ export const logout = async (
     // get token from local storage
     localStorage.setItem(AccessTokenName, "");
     setAToken("");
-    console.log(res);
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -28,7 +27,7 @@ export const users = async (aToken: string) => {
     });
     return res.data.users;
   } catch (error: any) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -46,5 +45,7 @@ export const userWithId = async (aToken: string, id: string) => {
       }
     );
     return res.data.user
-  } catch (error: any) {}
+  } catch (error: any) {
+    console.error(error);
+  }
 };

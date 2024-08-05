@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,26 +13,37 @@ import Search from "./search";
 import Contact from "./contact";
 import axios from "axios";
 import { ChatRoom, User } from "@/modules/types";
+import { UserContext } from "@/modules/authContext";
+import { userWithId } from "@/modules/common";
 
 function Chats() {
+  const { user, aToken } = useContext(UserContext);
   const [chatRoom, setChatRoom] = useState<ChatRoom[]>();
-  const [chats, setChats] = useState<User[]>();
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:4000/chatRoom/get-chat-rooms"
-        );
-        const { chatRooms }:{chatRooms:ChatRoom[] } = res.data;
-        console.log(chatRooms);
-        setChatRoom(chatRooms);
-        const chat = chatRooms.filter((e)=>e.users)
-        console.log(chat)
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }, []);
+  const [chats, setChats] = useState<User[]>([]);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         "http://localhost:4000/chatRoom/get-chat-rooms"
+  //       );
+  //       const { chatRooms }: { chatRooms: ChatRoom[] } = res.data;
+  //       console.log(chatRooms);
+  //       setChatRoom(chatRooms);
+  //       const chat = chatRooms.map((item) =>
+  //         item.users.filter((e) => e !== user?._id)
+  //       );
+  //       chat.forEach(async (item) => {
+  //         const u = await userWithId(aToken, item[0]);
+  //         console.log(u);
+  //         setChats((prev) => [...prev, u]);
+  //       });
+  //       console.log(chats);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   })();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [aToken, user?._id]);
   return (
     <>
       <Card
@@ -53,11 +64,13 @@ function Chats() {
                   <div className="flex gap-3 items-center">
                     <Avatar>
                       <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
+                      <AvatarFallback>{item.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                      <p>{item.}</p>
-                      <p className="text-sm text-muted-foreground ">{item}</p>
+                      <p>{item.username}</p>
+                      <p className="text-sm text-muted-foreground ">
+                        {item.email}
+                      </p>
                     </div>
                   </div>
                   <div>

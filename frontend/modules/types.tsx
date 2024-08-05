@@ -62,3 +62,8 @@ export interface User {
     setAToken: Dispatch<SetStateAction<string>>,
     setUser: Dispatch<SetStateAction<User | null>>,
   }
+
+  export interface ChatObject {
+    loading: boolean,
+    chat: User[],
+  }

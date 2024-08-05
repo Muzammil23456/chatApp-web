@@ -214,11 +214,10 @@ const UpdatePassword = () => {
           },
         }
       );
-      console.log(res);
       reset();
       setOpenDialog(false);
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -380,11 +379,10 @@ const ProfileEditForm = ({
           },
         }
       );
-      console.log(res);
       setUser(res.data.user);
       onOpenChange(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -476,7 +474,6 @@ const ProfilePicture = ({
         formData,
         { headers: { Authorization: `Bearer ${aToken}` } } // Multer handles 'Content-Type' automatically
       );
-      console.log(res.data); // Log the response data
       setUser(res.data.user);
       onOpenChange(false);
     } catch (error: any) {

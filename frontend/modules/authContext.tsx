@@ -6,5 +6,5 @@ export const UserContext = createContext<UserObject>({
   user: null,
   aToken: "",
   setAToken: () => {},
-setUser: () => {},
+  setUser: () => {},
 });

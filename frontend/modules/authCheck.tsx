@@ -5,7 +5,6 @@ import Loading from "@/app/loading";
 
 export const AuthCheck = (props: any) => {
   const { user, loading } = useContext(UserContext);
-  console.log(user, loading);
 
   return (
     <>
