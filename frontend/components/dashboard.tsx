@@ -251,6 +251,12 @@ const UpdatePassword = () => {
                           disabled={loading}
                           id="oldPwd"
                           type="text"
+                          onPointerMove={(e) => {
+                            e.preventDefault();
+                          }}
+                          onKeyDown={(e) =>
+                            e.code === "Space" ? e.stopPropagation() : null
+                          }
                           autoComplete="off"
                           {...register("oldPassword")}
                         />
@@ -274,6 +280,12 @@ const UpdatePassword = () => {
                           disabled={loading}
                           type="password"
                           id="newPwd"
+                          onPointerMove={(e) => {
+                            e.preventDefault();
+                          }}
+                          onKeyDown={(e) =>
+                            e.code === "Space" ? e.stopPropagation() : null
+                          }
                           autoComplete="off"
                           {...register("newPassword")}
                         />
@@ -285,7 +297,7 @@ const UpdatePassword = () => {
                       </div>
                     </div>
                     <Button
-                      className="w-full  bg-brand_1 disable:opacity-50 hover:bg-brand_2 transition ease-in-out delay-150"
+                      className="w-full bg-brand_1 disable:opacity-50 hover:bg-brand_2 transition ease-in-out delay-150"
                       type="submit"
                     >
                       {loading ? (
@@ -352,6 +364,7 @@ const ProfileEditForm = ({
     reset,
     formState: { errors },
     setValue,
+  getValues
   } = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -407,10 +420,13 @@ const ProfileEditForm = ({
                       disabled={loading}
                       id="username"
                       type="text"
+                      onPointerMove={(e) => {
+                        e.preventDefault();
+                      }}
+                      onKeyDown={(e) =>
+                        e.code === "Space" ? e.stopPropagation() : null
+                      }
                       autoComplete="off"
-                      // onKeyDown={(e) => {
-                      //   e.code === 'Space' ? e.stopPropagation() : null;
-                      // }}
                       {...register("username")}
                     />
                     {errors && (
@@ -433,6 +449,9 @@ const ProfileEditForm = ({
                       disabled={loading}
                       id="about"
                       autoComplete="off"
+                      onKeyDown={(e) =>
+                        e.code === "Space" ? e.stopPropagation() : null
+                      }
                       {...register("about")}
                     />
                     {errors && (
@@ -442,7 +461,7 @@ const ProfileEditForm = ({
                     )}
                   </div>
                 </div>
-                <Button className="w-full bg-brand_1  text-white hover:bg-brand_2">
+                <Button className="w-full bg-brand_1  text-white hover:bg-brand_2" disabled={loading &&(getValues().about == "Free for Call" )}>
                   Save
                 </Button>
               </div>

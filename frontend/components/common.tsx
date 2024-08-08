@@ -1,12 +1,8 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Message(props: { msg: string; isOwnMessage: boolean }) {
   const { msg, isOwnMessage } = props;
@@ -16,10 +12,6 @@ export function Message(props: { msg: string; isOwnMessage: boolean }) {
 export function Incoming(props: { msg: string }) {
   return (
     <div className="flex gap-2 justify-start">
-      {/* <Avatar className="w-10 h-10">
-        <AvatarImage src="https://github.com/shadcn.png" />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar> */}
       <Card
         className={` rounded-xl rounded-tl-none dark:bg-[#202c3330] max-w-[65%] border-none`}
       >
@@ -47,10 +39,6 @@ export function Outgoing(props: { msg: string }) {
           <p className="text-white text-xs">12:00</p>
         </CardFooter>
       </Card>
-      {/* <Avatar className="w-10 h-10">
-        <AvatarImage src="https://github.com/shadcn.png" />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar> */}
     </div>
   );
 }

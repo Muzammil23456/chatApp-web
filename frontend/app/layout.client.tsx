@@ -6,12 +6,13 @@ import { ChatContext } from "@/modules/chatContext";
 import { useChat } from "@/modules/chat";
 function LayoutClient({ children }: { children: React.ReactNode }) {
   const userData = useUserdata();
-  const chatData = useChat();
-
+  const chatData = useChat(userData);
   return (
     <>
       <UserContext.Provider value={userData}>
-        <ChatContext.Provider value={chatData}>{children}</ChatContext.Provider>
+        <ChatContext.Provider value={chatData}>
+          {children}
+        </ChatContext.Provider>
       </UserContext.Provider>
     </>
   );

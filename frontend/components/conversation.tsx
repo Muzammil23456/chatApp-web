@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { IconSend2 } from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
+import { IconSend2, IconCircleArrowDownFilled } from "@tabler/icons-react";
 import { Button } from "./ui/button";
 import { IconPaperclip } from "@tabler/icons-react";
 import { IconMoodSmile } from "@tabler/icons-react";
@@ -10,7 +10,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
 const messages = [
   { sender: "Alice", content: "Hello, how are you?" },
@@ -25,17 +27,42 @@ const messages = [
 ];
 
 function Conversation() {
-  useEffect(() => {
-    const element = document.getElementById("messages");
-    if (element) {
-      element.scrollTop = element.scrollHeight;
+  const [emoji, setEmoji] = useState<boolean>(false);
+  const [r, setR] = useState<EmojiClickData>();
+  const [downArrow, setDownArrow] = useState<boolean>(false);
+
+  const scrollCheck = () => {
+    const scroll = document.getElementById("scroll-area");
+    // check whether the user has scrolled up
+    if (scroll) {
+      if (scroll?.scrollTop <= -20) {
+        setDownArrow(true);
+      } else {
+        setDownArrow(false);
+      }
     }
-  })
+  };
+  const downArrowBtn = () => {
+    const down = document.getElementById("down-arrow");
+    down?.scrollIntoView({ behavior: "smooth" });
+    const scroll = document.getElementById("scroll-area");
+    scroll?.scrollTo(0, 0);
+  };
+
+  useEffect(() => {
+    if (r) {
+      setEmoji(false);
+    }
+  }, [r]);
   return (
     <>
       <div className="flex flex-col h-full gap-3">
-        <div id="messages"  className=" overflow-y-auto h-full">
-          <div className=" flex flex-col p-2  gap-2 justify-end h-full ">
+        <div
+          id="scroll-area"
+          onScroll={scrollCheck}
+          className=" overflow-y-auto h-full flex flex-col-reverse "
+        >
+          <div className=" flex flex-col p-2  gap-2 justify-end ">
             {messages.map((message, index) => (
               <Message
                 key={index}
@@ -44,8 +71,25 @@ function Conversation() {
               />
             ))}
           </div>
+          {downArrow && (
+            <span
+              onClick={downArrowBtn}
+              id="down-arrow"
+              className=" absolute right-8"
+            >
+              <IconCircleArrowDownFilled size={30} />
+            </span>
+          )}
         </div>
         <div>
+          {emoji && (
+            <div className="absolute right-16 bottom-16">
+              <Picker
+                data={data}
+                onEmojiClick={(emoji: EmojiClickData) => setR(emoji)}
+              />
+            </div>
+          )}
           <label className="relative block">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -75,12 +119,15 @@ function Conversation() {
                 <p>Attachment</p>
               </TooltipContent>
             </Tooltip>
-
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size={"icon"}
                   variant={"link"}
+                  onClick={() => {
+                    console.log("clicked");
+                    setEmoji((pre) => !pre);
+                  }}
                   className="absolute  my-auto  inset-y-0 right-16"
                 >
                   <IconMoodSmile className="text-muted-foreground" />
@@ -90,7 +137,6 @@ function Conversation() {
                 <p>Emoji</p>
               </TooltipContent>
             </Tooltip>
-            {/* <EmojiPicker/> */}
             <input
               type="text"
               id="message"
@@ -105,3 +151,11 @@ function Conversation() {
 }
 
 export default Conversation;
+
+export const Emoji = () => {
+  return (
+    <div className="absolute right-16 bottom-16">
+      <EmojiPicker />
+    </div>
+  );
+};
